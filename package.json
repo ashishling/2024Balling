@@ -2,6 +2,7 @@
   "name": "basketball-team-selector",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://YOUR_GITHUB_USERNAME.github.io/basketball-team-selector",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
