@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/basketball-team-selector/static/css/main.3871b8bc.css",
+    "main.js": "/basketball-team-selector/static/js/main.a65fcb98.js",
+    "static/js/453.c7671b62.chunk.js": "/basketball-team-selector/static/js/453.c7671b62.chunk.js",
+    "index.html": "/basketball-team-selector/index.html",
+    "main.3871b8bc.css.map": "/basketball-team-selector/static/css/main.3871b8bc.css.map",
+    "main.a65fcb98.js.map": "/basketball-team-selector/static/js/main.a65fcb98.js.map",
+    "453.c7671b62.chunk.js.map": "/basketball-team-selector/static/js/453.c7671b62.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3871b8bc.css",
+    "static/js/main.a65fcb98.js"
+  ]
+}
