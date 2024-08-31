@@ -1,5 +1,32 @@
+/* Add the :root block at the top of this file */
+
+:root {
+  --primary-color: #3498db;       /* Blue */
+  --primary-dark: #2980b9;        /* Darker Blue */
+  --secondary-color: #2ecc71;     /* Green */
+  --secondary-dark: #27ae60;      /* Darker Green */
+  --accent-color: #e74c3c;        /* Red */
+  --accent-dark: #c0392b;         /* Darker Red */
+  --background-light: #ecf0f1;    /* Light Gray */
+  --background-dark: #34495e;     /* Dark Blue-Gray */
+  --text-light: #ffffff;          /* White */
+  --text-dark: #2c3e50;           /* Very Dark Blue-Gray */
+  --border-color: #bdc3c7;        /* Light Gray */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-light);
+  color: var(--text-dark);
+}
+
 .App {
-  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--text-light);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .App-logo {
@@ -14,18 +41,168 @@
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  padding: 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.App-link {
-  color: #61dafb;
+.App-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 1px 1px, var(--primary-color) 1px, transparent 0);
+  background-size: 20px 20px;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.App-header h1 {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.App-nav {
+  display: flex;
+  background-color: var(--primary-color);
+}
+
+.tab {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  background-color: transparent;
+  color: var(--text-light);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.tab:hover {
+  background-color: var(--primary-dark);
+}
+
+.tab.active {
+  background-color: var(--primary-dark);
+  font-weight: bold;
+}
+
+.App-main {
+  padding: 2rem;
+  height: calc(100vh - 120px); /* Adjust this value based on your header and nav height */
+  overflow-y: auto;
+}
+
+.overall-list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.player-input-section {
+  margin-bottom: 2rem;
+}
+
+.player-list-section {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.player-list-section ul {
+  background-color: #ecf0f1;
+  padding: 1rem;
+  border-radius: 5px;
+  list-style-type: none;
+  margin: 0;
+}
+
+.player-list-section li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-list-section button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
+.player-list-section button:hover {
+  background-color: var(--accent-dark);
+}
+
+.weekly-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.weekly-selection-container,
+.generated-teams-container {
+  flex: 1;
+  background-color: var(--background-light);
+  padding: 1.5rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.weekly-selection-container {
+  max-width: 600px;
+}
+
+.generated-teams-container {
+  max-width: 500px;
+}
+
+.team {
+  background-color: var(--text-light);
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.team li {
+  margin-bottom: 0.5rem;
+}
+
+.empty-teams-message {
+  font-style: italic;
+  color: var(--text-dark);
+}
+
+button {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--primary-dark);
 }
 
 @keyframes App-logo-spin {
@@ -34,5 +211,104 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.player-list-columns {
+  display: flex;
+  gap: 1rem;
+}
+
+.player-column {
+  flex: 1;
+  background-color: #ecf0f1;
+  padding: 1rem;
+  border-radius: 5px;
+  list-style-type: none;
+  margin: 0;
+}
+
+.player-column li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-column button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.player-column button:hover {
+  background-color: var(--accent-dark);
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.player-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-player {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.edit-player select,
+.edit-player input {
+  padding: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.edit-player button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.App-main h2 {
+  font-size: 1.8rem;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+.App-main h3 {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.App-main h4 {
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 1024px) {
+  .weekly-container {
+    flex-direction: column;
+  }
+
+  .weekly-selection-container,
+  .generated-teams-container {
+    max-width: 100%;
   }
 }

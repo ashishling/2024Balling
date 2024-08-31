@@ -1,0 +1,44 @@
+.player-input-form {
+  display: flex;
+  justify-content: space-between;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--background-light);
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+}
+
+.input-group label {
+  margin-bottom: 5px;
+  color: var(--text-dark);
+}
+
+.input-group input,
+.input-group select {
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.player-input-form button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  margin-top: 20px;
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.player-input-form button:hover {
+  background-color: var(--primary-dark);
+}
