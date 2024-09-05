@@ -1,136 +1,241 @@
 .weekly-selection {
-  /* Remove the max-width property */
+  display: flex; /* Use flexbox for layout */
+  flex-wrap: wrap; /* Allow wrapping for smaller screens */
+  gap: 20px; /* Space between sections */
   margin: 0 auto;
-  background-color: var(--background-light);
-  padding: 1rem;
-  border-radius: 5px;
+  background-color: white; /* Background color for the outermost container */
+  padding: 1.5rem; /* Increased padding for better spacing */
+  border-radius: 8px; /* Slightly more rounded corners */
 }
 
+.player-selection,
+.generated-teams {
+  flex: 1 1 45%; /* Allow these sections to take available space, with a base width of 45% */
+  min-width: 300px; /* Ensure a minimum width */
+  padding: 1.5rem; /* Increased padding for better spacing */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border-radius: 8px; /* Slightly more rounded corners */
+  background-color: var(--background-light);
+}
+
+.player-selection h2,
+.generated-teams h2 {
+  margin-top: 0; /* Remove top margin for headings */
+  font-size: 1.5rem; /* Increase font size for headings */
+  color: var(--primary-color); /* Primary color for headings */
+  margin-bottom: 1rem; /* Add space below headings */
+}
+
+/* New styles for button spacing and design */
 .selection-actions {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  justify-content: space-between; /* Space out the buttons */
+  margin-bottom: 1.5rem; /* Add more space below the buttons */
 }
 
-.select-all-btn,
-.reset-btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: var(--primary-color);
-  color: var(--text-light);
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.selection-actions button {
+  flex: 1; /* Make buttons take equal space */
+  margin-right: 15px; /* Add more space between buttons */
+  padding: 12px 24px; /* Add more padding for better appearance */
+  font-size: 1rem; /* Increase font size */
+  background-color: var(--primary-color); /* Primary color for buttons */
+  color: var(--text-light); /* Light text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* More rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s, transform 0.2s; /* Smooth transition for background color and transform */
 }
 
-.select-all-btn:hover,
-.reset-btn:hover {
-  background-color: var(--primary-dark);
+.selection-actions button:last-child {
+  margin-right: 0; /* Remove margin for the last button */
 }
 
-.reset-btn {
-  background-color: var(--accent-color);
+.selection-actions button:hover {
+  background-color: var(--primary-dark); /* Darker background on hover */
+  transform: translateY(-2px); /* Slight lift on hover */
 }
 
-.reset-btn:hover {
-  background-color: var(--accent-dark);
+.selection-actions button:active {
+  transform: translateY(0); /* Reset lift on click */
 }
 
-.player-columns {
-  display: flex;
-  gap: 20px;
-}
-
+/* Styles for player list */
 .player-list {
-  list-style-type: none;
-  padding: 0;
-  flex: 1;
+  list-style: none; /* Remove default list styling */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
 }
 
 .player-item {
-  margin-bottom: 10px;
+  margin-bottom: 0.5rem; /* Space between player items */
 }
 
 .player-label {
   display: flex;
   align-items: center;
-  cursor: pointer;
+  font-size: 1rem; /* Consistent font size */
+  color: var(--text-dark); /* Dark text color */
 }
 
 .player-checkbox {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-.player-name {
-  font-size: 16px;
-  color: var(--text-dark);
-}
-
-.generate-teams-btn {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: var(--secondary-color);
-  color: var(--text-light);
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s;
-}
-
-.generate-teams-btn:hover {
-  background-color: var(--secondary-dark);
+  margin-right: 10px; /* Space between checkbox and text */
 }
 
 .temporary-player-form {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: var(--background-light);
-  border-radius: 5px;
-}
-
-.temporary-player-form h3 {
-  margin-top: 0;
-}
-
-.temporary-player-form form {
-  display: flex;
-  gap: 10px;
+  margin-top: 1.5rem; /* Space above the form */
 }
 
 .temporary-player-form input,
 .temporary-player-form select {
-  padding: 5px;
-  font-size: 14px;
+  margin-right: 10px; /* Space between form elements */
+  padding: 8px; /* Padding for form elements */
+  font-size: 1rem; /* Consistent font size */
+  border: 1px solid var(--border-color); /* Border for form elements */
+  border-radius: 5px; /* Rounded corners for form elements */
 }
 
 .temporary-player-form button {
-  padding: 5px 10px;
-  background-color: var(--secondary-color);
-  color: var(--text-light);
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
+  padding: 10px 20px; /* Padding for the button */
+  font-size: 1rem; /* Consistent font size */
+  background-color: var(--primary-color); /* Primary color for button */
+  color: var(--text-light); /* Light text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s, transform 0.2s; /* Smooth transition for background color and transform */
 }
 
 .temporary-player-form button:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--primary-dark); /* Darker background on hover */
+  transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.temporary-player-form button:active {
+  transform: translateY(0); /* Reset lift on click */
 }
 
 .temporary-players-list {
-  margin-top: 20px;
+  margin-top: 1.5rem; /* Space above the list */
+}
+
+.temporary-players-list h4 {
+  font-size: 1.25rem; /* Increase font size for subheading */
+  color: var(--primary-color); /* Primary color for subheading */
+  margin-bottom: 0.5rem; /* Space below subheading */
 }
 
 .temporary-players-list ul {
-  list-style-type: none;
-  padding: 0;
+  list-style: none; /* Remove default list styling */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
 }
 
 .temporary-players-list li {
-  margin-bottom: 5px;
+  font-size: 1rem; /* Consistent font size */
+  color: var(--text-dark); /* Dark text color */
+  margin-bottom: 0.5rem; /* Space between list items */
+}
+
+/* Styles for generated teams */
+.teams-list {
+  display: flex;
+  justify-content: space-between; /* Space out the teams */
+  gap: 20px; /* Space between team columns */
+}
+
+.team {
+  flex: 1; /* Allow teams to take equal space */
+  border: 1px solid var(--border-color); /* Optional border for distinction */
+  border-radius: 5px; /* Rounded corners */
+  padding: 1rem; /* Padding for the team section */
+}
+
+.team h3 {
+  font-size: 1.25rem; /* Increase font size for team heading */
+  color: var(--primary-color); /* Primary color for team heading */
+  margin-bottom: 0.5rem; /* Space below team heading */
+}
+
+.team ul {
+  list-style: none; /* Remove default list styling */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+}
+
+.team li {
+  font-size: 1rem; /* Consistent font size */
+  color: var(--text-dark); /* Dark text color */
+  margin-bottom: 0.5rem; /* Space between list items */
+}
+
+.game-creation {
+  flex: 1 1 45%; /* Allow these sections to take available space, with a base width of 45% */
+  min-width: 300px; /* Ensure a minimum width */
+  padding: 1.5rem; /* Increased padding for better spacing */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border-radius: 8px; /* Slightly more rounded corners */
+  background-color: var(--background-light);
+}
+
+.game-creation h2 {
+  margin-bottom: 15px; /* Space below the heading */
+}
+
+.game-creation label {
+  display: block; /* Make label block for better spacing */
+  margin-bottom: 10px; /* Space below each label */
+}
+
+.game-creation input[type="date"] {
+  padding: 8px; /* Padding for the date input */
+  border: 1px solid #ced4da; /* Border for the input */
+  border-radius: 5px; /* Rounded corners for the input */
+  width: 100%; /* Full width for the input */
+}
+
+.game-creation button {
+  background-color: #28a745; /* Button color */
+  color: white; /* Text color */
+  border: none; /* Remove border */
+  padding: 10px 20px; /* Padding for the button */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.game-creation button:hover {
+  background-color: #218838; /* Darker button color on hover */
+}
+
+.generate-teams-btn {
+  margin-top: 20px; /* Add space above the button */
+  padding: 10px 20px; /* Adjust padding for better appearance */
+  background-color: #007bff; /* Button color */
+  color: white; /* Text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.generate-teams-btn:hover {
+  background-color: #0056b3; /* Darker button color on hover */
+}
+
+/* New styles for swap button */
+.swap-button {
+  opacity: 1; /* Full opacity */
+  margin-left: 10px;
+  background-color: var(--primary-color); /* Light grey background */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 2px 6px; /* Some padding */
+  cursor: pointer;
+  font-size: 1em; /* Adjust size as needed */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.swap-button:hover {
+  background-color: #e0e0e0; /* Slightly darker on hover */
+  transform: scale(1.05); /* Slight enlargement on hover */
 }

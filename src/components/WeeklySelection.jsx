@@ -1,16 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Player } from '../models/Player';
-import './WeeklySelection.css'; // We'll create this CSS file
+import './WeeklySelection.css';
 
-export function WeeklySelection({ allPlayers, onUpdateWeeklyPlayers, onGenerateTeams, onReset }) {
+export function WeeklySelection({ 
+  allPlayers, 
+  onUpdateWeeklyPlayers, 
+  onGenerateTeams, 
+  onReset, 
+  onCreateGame, 
+  currentGame, 
+  recordScores, 
+  teams,
+  setTeams // Add this prop
+}) {
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [temporaryPlayers, setTemporaryPlayers] = useState([]);
   const [newTempPlayer, setNewTempPlayer] = useState({ name: '', position: 'Guard', skillLevel: 1 });
+  const [gameDate, setGameDate] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Reset selected players and temporary players when allPlayers changes
     setSelectedPlayers([]);
     setTemporaryPlayers([]);
   }, [allPlayers]);
+
+  // Reset state when currentGame is null (after recording scores)
+  useEffect(() => {
+    if (!currentGame) {
+      setSelectedPlayers([]);
+      setTemporaryPlayers([]);
+      setGameDate(''); // Reset game date
+    }
+  }, [currentGame]);
 
   const togglePlayerSelection = (player) => {
     setSelectedPlayers(prevSelected => {
@@ -29,6 +52,7 @@ export function WeeklySelection({ allPlayers, onUpdateWeeklyPlayers, onGenerateT
       return;
     }
     onUpdateWeeklyPlayers([...selectedPlayers, ...temporaryPlayers]);
+    onGenerateTeams();
   };
 
   const handleSelectAll = () => {
@@ -59,96 +83,160 @@ export function WeeklySelection({ allPlayers, onUpdateWeeklyPlayers, onGenerateT
     setNewTempPlayer({ ...newTempPlayer, [name]: value });
   };
 
+  const handleCreateGame = (e) => {
+    e.preventDefault();
+    onCreateGame(gameDate);
+    setGameDate('');
+    navigate('/game-management');
+  };
+
   // Split players into two columns
   const midpoint = Math.ceil(allPlayers.length / 2);
   const leftColumnPlayers = allPlayers.slice(0, midpoint);
   const rightColumnPlayers = allPlayers.slice(midpoint);
 
+  const swapPlayer = (playerIndex, fromTeam) => {
+    const updatedTeams = [...teams];
+    const player = updatedTeams[fromTeam].players.splice(playerIndex, 1)[0];
+    updatedTeams[fromTeam === 0 ? 1 : 0].players.push(player);
+    setTeams(updatedTeams);
+  };
+
   return (
     <div className="weekly-selection">
-      <h2>Select Confirmed Players for Game</h2>
-      <div className="selection-actions">
-        <button onClick={handleSelectAll} className="select-all-btn">
-          {selectedPlayers.length === allPlayers.length ? 'Deselect All' : 'Select All'}
-        </button>
-        <button onClick={handleReset} className="reset-btn">Reset</button>
-      </div>
-      <div className="player-columns">
-        <ul className="player-list">
-          {leftColumnPlayers.map((player, index) => (
-            <li key={index} className="player-item">
-              <label className="player-label">
-                <input 
-                  type="checkbox" 
-                  checked={selectedPlayers.some(p => p.name === player.name)}
-                  onChange={() => togglePlayerSelection(player)}
-                  className="player-checkbox"
-                />
-                <span className="player-name">{player.name} - {player.position}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-        <ul className="player-list">
-          {rightColumnPlayers.map((player, index) => (
-            <li key={index} className="player-item">
-              <label className="player-label">
-                <input 
-                  type="checkbox" 
-                  checked={selectedPlayers.some(p => p.name === player.name)}
-                  onChange={() => togglePlayerSelection(player)}
-                  className="player-checkbox"
-                />
-                <span className="player-name">{player.name} - {player.position}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <h3>Add +1s for the week</h3>
-      <div className="temporary-player-form">
-        <form onSubmit={handleAddTempPlayer}>
-          <input
-            type="text"
-            name="name"
-            value={newTempPlayer.name}
-            onChange={handleTempPlayerInputChange}
-            placeholder="Name"
-            required
-          />
-          <select
-            name="position"
-            value={newTempPlayer.position}
-            onChange={handleTempPlayerInputChange}
-            required
-          >
-            <option value="Guard">Guard</option>
-            <option value="Forward">Forward</option>
-            <option value="Center">Center</option>
-          </select>
-          <input
-            type="number"
-            name="skillLevel"
-            value={newTempPlayer.skillLevel}
-            onChange={handleTempPlayerInputChange}
-            min="1"
-            max="10"
-            required
-          />
-          <button type="submit">Add</button>
-        </form>
-      </div>
-      {temporaryPlayers.length > 0 && (
-        <div className="temporary-players-list">
-          <h4>Temporary Players</h4>
-          <ul>
-            {temporaryPlayers.map((player, index) => (
-              <li key={index}>{player.name} - {player.position} (Skill: {player.skillLevel})</li>
+      {/* Section 1: Player Selection */}
+      <div className="player-selection">
+        <h2>Select Confirmed Players for Game</h2>
+        <div className="selection-actions">
+          <button onClick={handleSelectAll} className="select-all-btn">
+            {selectedPlayers.length === allPlayers.length ? 'Deselect All' : 'Select All'}
+          </button>
+          <button onClick={handleReset} className="reset-btn">Reset</button>
+        </div>
+        <div className="player-columns">
+          <ul className="player-list">
+            {leftColumnPlayers.map((player, index) => (
+              <li key={index} className="player-item">
+                <label className="player-label">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedPlayers.some(p => p.name === player.name)}
+                    onChange={() => togglePlayerSelection(player)}
+                    className="player-checkbox"
+                  />
+                  <span className="player-name">{player.name} - {player.position}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+          <ul className="player-list">
+            {rightColumnPlayers.map((player, index) => (
+              <li key={index} className="player-item">
+                <label className="player-label">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedPlayers.some(p => p.name === player.name)}
+                    onChange={() => togglePlayerSelection(player)}
+                    className="player-checkbox"
+                  />
+                  <span className="player-name">{player.name} - {player.position}</span>
+                </label>
+              </li>
             ))}
           </ul>
         </div>
+        <h3>Add +1s for the week</h3>
+        <div className="temporary-player-form">
+          <form onSubmit={handleAddTempPlayer}>
+            <input
+              type="text"
+              name="name"
+              value={newTempPlayer.name}
+              onChange={handleTempPlayerInputChange}
+              placeholder="Name"
+              required
+            />
+            <select
+              name="position"
+              value={newTempPlayer.position}
+              onChange={handleTempPlayerInputChange}
+              required
+            >
+              <option value="Guard">Guard</option>
+              <option value="Forward">Forward</option>
+              <option value="Center">Center</option>
+            </select>
+            <input
+              type="number"
+              name="skillLevel"
+              value={newTempPlayer.skillLevel}
+              onChange={handleTempPlayerInputChange}
+              min="1"
+              max="10"
+              required
+            />
+            <button type="submit">Add</button>
+          </form>
+        </div>
+        {temporaryPlayers.length > 0 && (
+          <div className="temporary-players-list">
+            <h4>Temporary Players</h4>
+            <ul>
+              {temporaryPlayers.map((player, index) => (
+                <li key={index}>{player.name} - {player.position} (Skill: {player.skillLevel})</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {/* Generate Teams Button */}
+        <button onClick={handleGenerateTeams} className="generate-teams-btn">Generate Teams</button>
+      </div>
+
+      {/* Section 2: Generated Teams */}
+      {teams.length > 0 && (
+        <div className="generated-teams">
+          <h2>Generated Teams</h2>
+          <div className="teams-list">
+            {teams.map((team, teamIndex) => (
+              <div key={teamIndex} className="team">
+                <h3>Team {teamIndex + 1}</h3>
+                <ul>
+                  {team.players.map((player, playerIndex) => (
+                    <li key={playerIndex}>
+                      <span>{player.name} - {player.position}</span>
+                      <button 
+                        onClick={() => swapPlayer(playerIndex, teamIndex)}
+                        className="swap-button"
+                      >
+                        Swap
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
-      <button onClick={handleGenerateTeams} className="generate-teams-btn">Generate Teams</button>
+
+      {/* Section 3: Create Game */}
+      {teams.length > 0 && !currentGame && (
+        <div className="game-creation">
+          <h2>Confirm Players and Create Game</h2>
+          <form onSubmit={handleCreateGame}>
+            <label>
+              Game Date:
+              <input
+                type="date"
+                value={gameDate}
+                onChange={(e) => setGameDate(e.target.value)}
+                required
+              />
+            </label>
+            <button type="submit">Confirm Players and Create Game</button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

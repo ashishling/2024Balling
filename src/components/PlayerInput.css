@@ -1,5 +1,6 @@
 .player-input-form {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   max-width: 600px;
   margin: 0 auto;
@@ -9,9 +10,10 @@
 }
 
 .input-group {
+  flex: 1 1 calc(33.333% - 10px);
   display: flex;
   flex-direction: column;
-  margin-right: 10px;
+  margin-bottom: 15px;
 }
 
 .input-group label {
@@ -25,20 +27,37 @@
   border: 1px solid var(--border-color);
   border-radius: 3px;
   font-size: 14px;
+  width: 100%;
 }
 
 .player-input-form button {
-  align-self: flex-end;
-  padding: 8px 16px;
-  margin-top: 20px;
+  flex: 1 1 100%;
+  padding: 10px 16px;
+  margin-top: 10px;
   background-color: var(--primary-color);
   color: var(--text-light);
   border: none;
   border-radius: 3px;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-size: 16px;
 }
 
 .player-input-form button:hover {
   background-color: var(--primary-dark);
+}
+
+@media (max-width: 600px) {
+  .player-input-form {
+    flex-direction: column;
+  }
+
+  .input-group {
+    flex: 1 1 100%;
+    margin-right: 0;
+  }
+
+  .player-input-form button {
+    margin-top: 15px;
+  }
 }

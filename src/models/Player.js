@@ -15,6 +15,8 @@ export class Player {
     this.name = name;
     this.setPosition(position);
     this.setSkillLevel(skillLevel);
+    this.wins = 0;
+    this.losses = 0;
   }
 
   setPosition(position) {
@@ -35,11 +37,21 @@ export class Player {
     }
   }
 
+  recordWin() {
+    this.wins += 1;
+  }
+
+  recordLoss() {
+    this.losses += 1;
+  }
+
   toJSON() {
     return {
       name: this.name,
       position: this.position,
-      skillLevel: this.skillLevel
+      skillLevel: this.skillLevel,
+      wins: this.wins,
+      losses: this.losses
     };
   }
 }

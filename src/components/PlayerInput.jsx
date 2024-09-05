@@ -17,8 +17,9 @@ export function PlayerInput({ onAddPlayer }) {
   return (
     <form onSubmit={handleSubmit} className="player-input-form">
       <div className="input-group">
-        <label>Player Name</label>
+        <label htmlFor="player-name">Player Name</label>
         <input
+          id="player-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -27,8 +28,9 @@ export function PlayerInput({ onAddPlayer }) {
         />
       </div>
       <div className="input-group">
-        <label>Player Position</label>
+        <label htmlFor="player-position">Player Position</label>
         <select
+          id="player-position"
           value={position}
           onChange={(e) => setPosition(e.target.value)}
           required
@@ -39,8 +41,9 @@ export function PlayerInput({ onAddPlayer }) {
         </select>
       </div>
       <div className="input-group">
-        <label>Player Skill</label>
+        <label htmlFor="player-skill">Player Skill</label>
         <input
+          id="player-skill"
           type="number"
           value={skillLevel}
           onChange={(e) => setSkillLevel(e.target.value)}

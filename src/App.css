@@ -156,7 +156,7 @@ body {
 .weekly-selection-container,
 .generated-teams-container {
   flex: 1;
-  background-color: var(--background-light);
+  background-color: white;
   padding: 1.5rem;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -311,4 +311,91 @@ button:hover {
   .generated-teams-container {
     max-width: 100%;
   }
+}
+
+/* Add these media queries at the end of the file */
+
+@media (max-width: 768px) {
+  .App-main {
+    padding: 1rem;
+  }
+
+  .weekly-container {
+    flex-direction: column;
+  }
+
+  .weekly-selection-container,
+  .generated-teams-container {
+    max-width: 100%;
+  }
+
+  .player-list-columns {
+    flex-direction: column;
+  }
+
+  .player-column {
+    margin-bottom: 1rem;
+  }
+
+  .team {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .App-header h1 {
+    font-size: 2rem;
+  }
+
+  .tab {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .App-main h2 {
+    font-size: 1.5rem;
+  }
+
+  .App-main h3 {
+    font-size: 1.3rem;
+  }
+
+  .App-main h4 {
+    font-size: 1.1rem;
+  }
+}
+
+.games-container {
+  padding: 1rem;
+}
+
+.game-management {
+  margin-bottom: 2rem;
+}
+
+.score-inputs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.score-inputs div {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.score-inputs div:last-child {
+  margin-right: 0;
+}
+
+.games-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.games-list li {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }

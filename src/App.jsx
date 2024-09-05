@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import { Player } from './models/Player';
 import { Team } from './models/Team';
-import { PlayerInput } from './components/PlayerInput';
-import { PlayerList } from './components/PlayerList';
-import { WeeklySelection } from './components/WeeklySelection';
+import { TabNavigation } from './components/TabNavigation';
+import { OverallPlayerList } from './components/OverallPlayerList';
+import { WeeklySelectionContainer } from './components/WeeklySelectionContainer';
+import { GameManagement } from './components/GameManagement';
 import { createBalancedTeams } from './utils/teambalancer';
 import './App.css';
 
@@ -27,13 +29,45 @@ function App() {
 
   const [weeklyPlayers, setWeeklyPlayers] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [currentGame, setCurrentGame] = useState(null);
+  const [games, setGames] = useState([]);
   const [activeTab, setActiveTab] = useState('weekly');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [upcomingGames, setUpcomingGames] = useState([]);
+  const [pastGames, setPastGames] = useState([]);
+
+  // Function to update game lists
+  const updateGameLists = useCallback(() => {
+    const currentDate = new Date();
+    const upcoming = games.filter(game => new Date(game.date) > currentDate);
+    const past = games.filter(game => new Date(game.date) <= currentDate);
+    setUpcomingGames(upcoming);
+    setPastGames(past);
+  }, [games]);
+
+  // Use effect to update game lists whenever games change
+  useEffect(() => {
+    updateGameLists();
+  }, [games, updateGameLists]);
 
   useEffect(() => {
     console.log('allPlayers state updated:', allPlayers);
     console.log('Saving to storage:', JSON.stringify(allPlayers));
     localStorage.setItem('basketballPlayers', JSON.stringify(allPlayers));
   }, [allPlayers]);
+
+  useEffect(() => {
+    // Update activeTab based on the current route
+    const path = location.pathname;
+    if (path === '/overall') {
+      setActiveTab('overall');
+    } else if (path === '/weekly') {
+      setActiveTab('weekly');
+    } else if (path === '/games') {
+      setActiveTab('games');
+    }
+  }, [location]);
 
   const addPlayer = useCallback((player) => {
     console.log('Adding player:', player);
@@ -55,33 +89,99 @@ function App() {
   }, [weeklyPlayers]);
 
   const createTeams = useCallback(() => {
-    const balancedTeams = createBalancedTeams(weeklyPlayers);
-    
-    // Sort players by position within each team
-    const sortedTeams = balancedTeams.map(team => {
-      const sortedPlayers = team.players.sort((a, b) => {
-        const positionOrder = { 'Guard': 1, 'Forward': 2, 'Center': 3 };
-        return positionOrder[a.position] - positionOrder[b.position];
-      });
-      return new Team(sortedPlayers);
-    });
-    
-    setTeams(sortedTeams);
+    const generatedTeams = createBalancedTeams(weeklyPlayers);
+    console.log('Generated teams:', generatedTeams); // Add this line for debugging
+    setTeams(generatedTeams.map(team => ({
+      players: team.players.map(player => ({
+        name: player.name,
+        position: player.position,
+        skillLevel: player.skillLevel
+      }))
+    })));
   }, [weeklyPlayers]);
-
-  const editPlayer = useCallback((name, newPosition, newSkillLevel) => {
-    setAllPlayers(prevPlayers =>
-      prevPlayers.map(player =>
-        player.name === name
-          ? { ...player, position: newPosition, skillLevel: newSkillLevel }
-          : player
-      )
-    );
-  }, []);
 
   const handleReset = useCallback(() => {
     setWeeklyPlayers([]);
     setTeams([]);
+  }, []);
+
+  const createGame = useCallback((date) => {
+    const newGame = {
+      id: upcomingGames.length + pastGames.length + 1,
+      date,
+      teams: teams.map(team => ({
+        ...team,
+        players: team.players.map(player => ({
+          name: player.name,
+          position: player.position,
+          skillLevel: player.skillLevel
+        }))
+      })),
+      team1Score: 0,
+      team2Score: 0,
+    };
+    console.log('Creating new game:', newGame); // Add this line for debugging
+    setUpcomingGames(prevGames => [...prevGames, newGame]);
+    navigate('/game-management');
+  }, [teams, upcomingGames.length, pastGames.length, navigate]);
+
+  const recordScores = useCallback((team1Score, team2Score) => {
+    const updatedGame = {
+      ...currentGame,
+      team1Score,
+      team2Score
+    };
+
+    setGames(prevGames => [...prevGames, updatedGame]);
+
+    // Update player wins and losses
+    if (team1Score > team2Score) {
+      currentGame.teams[0].players.forEach(player => player.recordWin());
+      currentGame.teams[1].players.forEach(player => player.recordLoss());
+    } else {
+      currentGame.teams[0].players.forEach(player => player.recordLoss());
+      currentGame.teams[1].players.forEach(player => player.recordWin());
+    }
+
+    // Save updated players to local storage
+    setAllPlayers([...allPlayers]);
+    setCurrentGame(null); // Reset currentGame to null
+  }, [currentGame, allPlayers]);
+
+  const handleUpdateScore = useCallback((gameId, team1Score, team2Score) => {
+    const updateGame = (games) => games.map(game => 
+      game.id === gameId ? { ...game, team1Score, team2Score } : game
+    );
+
+    setUpcomingGames(prevGames => {
+      const updatedGames = updateGame(prevGames);
+      const completedGame = updatedGames.find(game => game.id === gameId);
+      if (completedGame) {
+        setPastGames(prevPastGames => [...prevPastGames, completedGame]);
+        return updatedGames.filter(game => game.id !== gameId);
+      }
+      return updatedGames;
+    });
+
+    setPastGames(prevGames => updateGame(prevGames));
+  }, []);
+
+  const editPlayer = useCallback((name, position, skillLevel) => {
+    setAllPlayers(prevPlayers => 
+      prevPlayers.map(player => 
+        player.name === name ? { ...player, position, skillLevel } : player
+      )
+    );
+  }, []);
+
+  const onDeleteGame = useCallback((gameId) => {
+    setGames(prevGames => {
+      const updatedGames = prevGames.filter(game => game.id !== gameId);
+      // Update localStorage
+      localStorage.setItem('games', JSON.stringify(updatedGames));
+      return updatedGames;
+    });
+    // No need to call updateGameLists() here as it will be triggered by the useEffect
   }, []);
 
   console.log('Rendering App with allPlayers:', allPlayers);
@@ -91,65 +191,58 @@ function App() {
       <header className="App-header">
         <h1>2024 Balling</h1>
       </header>
-      <nav className="App-nav">
-        <button 
-          className={`tab ${activeTab === 'overall' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overall')}
-        >
-          Overall Player List
-        </button>
-        <button 
-          className={`tab ${activeTab === 'weekly' ? 'active' : ''}`}
-          onClick={() => setActiveTab('weekly')}
-        >
-          Weekly Selection
-        </button>
-      </nav>
+      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="App-main">
-        {activeTab === 'overall' && (
-          <div className="overall-list-container">
-            <div className="player-input-section">
-              <h2>Add New Player</h2>
-              <PlayerInput onAddPlayer={addPlayer} />
-            </div>
-            <div className="player-list-section">
-              <h2>Overall Player List</h2>
-              <PlayerList players={allPlayers} onRemovePlayer={removePlayer} />
-            </div>
-          </div>
-        )}
-        {activeTab === 'weekly' && (
-          <div className="weekly-container">
-            <div className="weekly-selection-container">
-              <WeeklySelection 
-                allPlayers={allPlayers} 
-                onUpdateWeeklyPlayers={updateWeeklyPlayers}
-                onGenerateTeams={createTeams}
-                onReset={handleReset}
-              />
-            </div>
-            <div className="generated-teams-container">
-              <h2>Generated Teams</h2>
-              {teams.length > 0 ? (
-                <div className="teams-container">
-                  {teams.map((team, index) => (
-                    <div key={index} className="team">
-                      <h3>Team {index + 1}</h3>
-                      <ul>
-                        {team.players.map((player, playerIndex) => (
-                          <li key={playerIndex}>{player.name} - {player.position} (Skill: {player.skillLevel})</li>
-                        ))}
-                      </ul>
-                      <p>Total Skill: {team.getTotalSkill()}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="empty-teams-message">No teams generated yet. Select players and click "Generate Teams" to create balanced teams.</p>
-              )}
-            </div>
-          </div>
-        )}
+        <Routes>
+          <Route path="/overall" element={
+            <OverallPlayerList 
+              allPlayers={allPlayers} 
+              addPlayer={addPlayer} 
+              removePlayer={removePlayer} 
+              onEditPlayer={editPlayer} // Pass the editPlayer function
+            />
+          } />
+          <Route path="/weekly" element={
+            <WeeklySelectionContainer 
+              allPlayers={allPlayers} 
+              updateWeeklyPlayers={updateWeeklyPlayers}
+              createTeams={createTeams}
+              handleReset={handleReset}
+              createGame={createGame}
+              currentGame={currentGame}
+              recordScores={recordScores}
+              teams={teams}
+              setTeams={setTeams} // Add this line
+            />
+          } />
+          <Route path="/games" element={
+            <GameManagement 
+              upcomingGames={upcomingGames}
+              pastGames={pastGames}
+              onUpdateScore={handleUpdateScore}
+              onDeleteGame={onDeleteGame} // Make sure this is here
+            />
+          } />
+          <Route path="/game-management" element={
+            <GameManagement 
+              upcomingGames={upcomingGames}
+              pastGames={pastGames}
+              onUpdateScore={handleUpdateScore}
+            />
+          } />
+          <Route path="/" element={
+            <WeeklySelectionContainer 
+              allPlayers={allPlayers} 
+              updateWeeklyPlayers={updateWeeklyPlayers}
+              createTeams={createTeams}
+              handleReset={handleReset}
+              createGame={createGame}
+              currentGame={currentGame}
+              recordScores={recordScores}
+              teams={teams}
+            />
+          } />
+        </Routes>
       </main>
     </div>
   );

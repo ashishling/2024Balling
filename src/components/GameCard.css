@@ -1,0 +1,93 @@
+.game-card {
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: #000; /* Set default text color to black */
+  }
+  
+  .game-date {
+    font-size: 1.1em;
+    color: #6c757d;
+    margin-bottom: 15px;
+  }
+  
+  .teams-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .team-column {
+    flex: 1;
+    padding: 0 10px;
+  }
+  
+  .team-column h3 {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .team-column ul {
+    background-color: var(--text-light); /* Changed from #007bff to black */
+    list-style-type: none;
+    padding-left: 2px;
+  }
+  
+  .team-column li {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #176abd; /* Change this to your desired color */
+    padding: 2px;
+  }
+  
+  .score-display {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .action-buttons button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .action-buttons button:hover {
+    background-color: #218838;
+  }
+  
+  .delete-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+  }
+  
+  .delete-button:hover {
+    background-color: #c82333;
+  }
+  
+  input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    margin-right: 10px;
+  }
