@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { db } from './firebase';
 import { Player } from './models/Player';
 import { Team } from './models/Team';
 import { TabNavigation } from './components/TabNavigation';
@@ -8,25 +10,11 @@ import { WeeklySelectionContainer } from './components/WeeklySelectionContainer'
 import { GameManagement } from './components/GameManagement';
 import { createBalancedTeams } from './utils/teambalancer';
 import './App.css';
+import { AdminPage } from './components/AdminPage';
+import { PlayerStats } from './components/PlayerStats';
 
 function App() {
-  const [allPlayers, setAllPlayers] = useState(() => {
-    const storedPlayers = localStorage.getItem('basketballPlayers');
-    console.log('Initial load from storage:', storedPlayers);
-    if (storedPlayers) {
-      try {
-        const parsedPlayers = JSON.parse(storedPlayers);
-        console.log('Initial parsed players:', parsedPlayers);
-        if (Array.isArray(parsedPlayers)) {
-          return parsedPlayers.map(p => new Player(p.name, p.position, p.skillLevel));
-        }
-      } catch (error) {
-        console.error('Error parsing stored players:', error);
-      }
-    }
-    return [];
-  });
-
+  const [allPlayers, setAllPlayers] = useState([]);
   const [weeklyPlayers, setWeeklyPlayers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [currentGame, setCurrentGame] = useState(null);
@@ -37,25 +25,50 @@ function App() {
   const [upcomingGames, setUpcomingGames] = useState([]);
   const [pastGames, setPastGames] = useState([]);
 
-  // Function to update game lists
-  const updateGameLists = useCallback(() => {
+  useEffect(() => {
+    // Listen for changes in the players collection
+    const unsubscribePlayers = onSnapshot(query(collection(db, 'players')), (snapshot) => {
+      const playersData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return new Player(data.name, data.position, data.skillLevel, doc.id);
+      });
+      setAllPlayers(playersData);
+    }, (error) => {
+      console.error("Error fetching players:", error);
+    });
+
+    // Listen for changes in the games collection
+    const gamesQuery = query(collection(db, 'games'));
+    const unsubscribeGames = onSnapshot(gamesQuery, (snapshot) => {
+      const gamesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      const currentDate = new Date();
+      const upcoming = gamesData.filter(game => new Date(game.date) > currentDate || game.status !== 'completed');
+      const past = gamesData.filter(game => new Date(game.date) <= currentDate && game.status === 'completed');
+      
+      setUpcomingGames(upcoming);
+      setPastGames(past);
+    }, (error) => {
+      console.error("Error fetching games:", error);
+    });
+
+    // Cleanup function
+    return () => {
+      unsubscribePlayers();
+      unsubscribeGames();
+    };
+  }, []);
+
+  const updateGameLists = useCallback((gamesData) => {
     const currentDate = new Date();
-    const upcoming = games.filter(game => new Date(game.date) > currentDate);
-    const past = games.filter(game => new Date(game.date) <= currentDate);
+    const upcoming = gamesData.filter(game => new Date(game.date) > currentDate);
+    const past = gamesData.filter(game => new Date(game.date) <= currentDate);
     setUpcomingGames(upcoming);
     setPastGames(past);
-  }, [games]);
-
-  // Use effect to update game lists whenever games change
-  useEffect(() => {
-    updateGameLists();
-  }, [games, updateGameLists]);
-
-  useEffect(() => {
-    console.log('allPlayers state updated:', allPlayers);
-    console.log('Saving to storage:', JSON.stringify(allPlayers));
-    localStorage.setItem('basketballPlayers', JSON.stringify(allPlayers));
-  }, [allPlayers]);
+  }, []);
 
   useEffect(() => {
     // Update activeTab based on the current route
@@ -71,11 +84,11 @@ function App() {
 
   const addPlayer = useCallback((player) => {
     console.log('Adding player:', player);
-    setAllPlayers(prevPlayers => [...prevPlayers, player]);
+    // This will be handled by Firestore listener
   }, []);
 
-  const removePlayer = useCallback((name) => {
-    setAllPlayers(prevPlayers => prevPlayers.filter(player => player.name !== name));
+  const removePlayer = useCallback((id) => {
+    // This will be handled by Firestore listener
   }, []);
 
   const updateWeeklyPlayers = useCallback((selectedPlayers) => {
@@ -90,14 +103,8 @@ function App() {
 
   const createTeams = useCallback(() => {
     const generatedTeams = createBalancedTeams(weeklyPlayers);
-    console.log('Generated teams:', generatedTeams); // Add this line for debugging
-    setTeams(generatedTeams.map(team => ({
-      players: team.players.map(player => ({
-        name: player.name,
-        position: player.position,
-        skillLevel: player.skillLevel
-      }))
-    })));
+    console.log('Generated teams:', generatedTeams);
+    setTeams(generatedTeams.map(team => new Team(team.players)));
   }, [weeklyPlayers]);
 
   const handleReset = useCallback(() => {
@@ -105,84 +112,41 @@ function App() {
     setTeams([]);
   }, []);
 
-  const createGame = useCallback((date) => {
-    const newGame = {
-      id: upcomingGames.length + pastGames.length + 1,
-      date,
-      teams: teams.map(team => ({
-        ...team,
-        players: team.players.map(player => ({
-          name: player.name,
-          position: player.position,
-          skillLevel: player.skillLevel
-        }))
-      })),
-      team1Score: 0,
-      team2Score: 0,
-    };
-    console.log('Creating new game:', newGame); // Add this line for debugging
-    setUpcomingGames(prevGames => [...prevGames, newGame]);
-    navigate('/game-management');
-  }, [teams, upcomingGames.length, pastGames.length, navigate]);
+  // Remove this function
+  // const createGame = useCallback((date) => {
+  //   // This will be handled in the WeeklySelectionContainer component
+  // }, [teams, upcomingGames.length, pastGames.length, navigate]);
 
   const recordScores = useCallback((team1Score, team2Score) => {
-    const updatedGame = {
-      ...currentGame,
-      team1Score,
-      team2Score
-    };
-
-    setGames(prevGames => [...prevGames, updatedGame]);
-
-    // Update player wins and losses
-    if (team1Score > team2Score) {
-      currentGame.teams[0].players.forEach(player => player.recordWin());
-      currentGame.teams[1].players.forEach(player => player.recordLoss());
-    } else {
-      currentGame.teams[0].players.forEach(player => player.recordLoss());
-      currentGame.teams[1].players.forEach(player => player.recordWin());
-    }
-
-    // Save updated players to local storage
-    setAllPlayers([...allPlayers]);
-    setCurrentGame(null); // Reset currentGame to null
+    // This will be handled in the GameManagement component
   }, [currentGame, allPlayers]);
 
   const handleUpdateScore = useCallback((gameId, team1Score, team2Score) => {
-    const updateGame = (games) => games.map(game => 
-      game.id === gameId ? { ...game, team1Score, team2Score } : game
-    );
-
-    setUpcomingGames(prevGames => {
-      const updatedGames = updateGame(prevGames);
-      const completedGame = updatedGames.find(game => game.id === gameId);
-      if (completedGame) {
-        setPastGames(prevPastGames => [...prevPastGames, completedGame]);
-        return updatedGames.filter(game => game.id !== gameId);
-      }
-      return updatedGames;
-    });
-
-    setPastGames(prevGames => updateGame(prevGames));
+    // This will be handled in the GameManagement component
   }, []);
 
-  const editPlayer = useCallback((name, position, skillLevel) => {
-    setAllPlayers(prevPlayers => 
-      prevPlayers.map(player => 
-        player.name === name ? { ...player, position, skillLevel } : player
-      )
-    );
+  const editPlayer = useCallback((id, position, skillLevel) => {
+    // This will be handled by Firestore listener
   }, []);
 
   const onDeleteGame = useCallback((gameId) => {
-    setGames(prevGames => {
-      const updatedGames = prevGames.filter(game => game.id !== gameId);
-      // Update localStorage
-      localStorage.setItem('games', JSON.stringify(updatedGames));
-      return updatedGames;
-    });
-    // No need to call updateGameLists() here as it will be triggered by the useEffect
+    // This will be handled in the GameManagement component
   }, []);
+
+  const handleGameUpdated = (gameId, updatedData) => {
+    setUpcomingGames(prevGames => 
+      prevGames.filter(game => game.id !== gameId)
+    );
+    setPastGames(prevGames => [
+      ...prevGames,
+      { ...prevGames.find(game => game.id === gameId), ...updatedData }
+    ]);
+  };
+
+  const handleGameDeleted = (gameId) => {
+    setUpcomingGames(prevGames => prevGames.filter(game => game.id !== gameId));
+    setPastGames(prevGames => prevGames.filter(game => game.id !== gameId));
+  };
 
   console.log('Rendering App with allPlayers:', allPlayers);
 
@@ -194,33 +158,23 @@ function App() {
       <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="App-main">
         <Routes>
-          <Route path="/overall" element={
-            <OverallPlayerList 
-              allPlayers={allPlayers} 
-              addPlayer={addPlayer} 
-              removePlayer={removePlayer} 
-              onEditPlayer={editPlayer} // Pass the editPlayer function
-            />
-          } />
+          <Route path="/overall" element={<OverallPlayerList allPlayers={allPlayers} />} />
           <Route path="/weekly" element={
             <WeeklySelectionContainer 
               allPlayers={allPlayers} 
               updateWeeklyPlayers={updateWeeklyPlayers}
               createTeams={createTeams}
               handleReset={handleReset}
-              createGame={createGame}
-              currentGame={currentGame}
-              recordScores={recordScores}
               teams={teams}
-              setTeams={setTeams} // Add this line
+              setTeams={setTeams}
             />
           } />
           <Route path="/games" element={
             <GameManagement 
               upcomingGames={upcomingGames}
               pastGames={pastGames}
-              onUpdateScore={handleUpdateScore}
-              onDeleteGame={onDeleteGame} // Make sure this is here
+              onGameUpdated={handleGameUpdated}
+              onGameDeleted={handleGameDeleted}
             />
           } />
           <Route path="/game-management" element={
@@ -228,6 +182,7 @@ function App() {
               upcomingGames={upcomingGames}
               pastGames={pastGames}
               onUpdateScore={handleUpdateScore}
+              onDeleteGame={onDeleteGame}
             />
           } />
           <Route path="/" element={
@@ -236,12 +191,12 @@ function App() {
               updateWeeklyPlayers={updateWeeklyPlayers}
               createTeams={createTeams}
               handleReset={handleReset}
-              createGame={createGame}
-              currentGame={currentGame}
-              recordScores={recordScores}
               teams={teams}
+              setTeams={setTeams}
             />
           } />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/player-stats" element={<PlayerStats players={allPlayers} />} />
         </Routes>
       </main>
     </div>

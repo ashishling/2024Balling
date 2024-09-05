@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Player } from '../models/Player';
 import './WeeklySelection.css';
@@ -85,10 +85,15 @@ export function WeeklySelection({
 
   const handleCreateGame = (e) => {
     e.preventDefault();
+    console.log("Creating game with date:", gameDate);
     onCreateGame(gameDate);
     setGameDate('');
-    navigate('/game-management');
   };
+
+  // Sort players alphabetically by name
+  const sortedPlayers = useMemo(() => {
+    return [...allPlayers].sort((a, b) => a.name.localeCompare(b.name));
+  }, [allPlayers]);
 
   // Split players into two columns
   const midpoint = Math.ceil(allPlayers.length / 2);
@@ -102,6 +107,11 @@ export function WeeklySelection({
     setTeams(updatedTeams);
   };
 
+  // Calculate total selected players
+  const totalSelectedPlayers = useMemo(() => {
+    return selectedPlayers.length + temporaryPlayers.length;
+  }, [selectedPlayers, temporaryPlayers]);
+
   return (
     <div className="weekly-selection">
       {/* Section 1: Player Selection */}
@@ -113,37 +123,20 @@ export function WeeklySelection({
           </button>
           <button onClick={handleReset} className="reset-btn">Reset</button>
         </div>
-        <div className="player-columns">
-          <ul className="player-list">
-            {leftColumnPlayers.map((player, index) => (
-              <li key={index} className="player-item">
-                <label className="player-label">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedPlayers.some(p => p.name === player.name)}
-                    onChange={() => togglePlayerSelection(player)}
-                    className="player-checkbox"
-                  />
-                  <span className="player-name">{player.name} - {player.position}</span>
-                </label>
-              </li>
-            ))}
-          </ul>
-          <ul className="player-list">
-            {rightColumnPlayers.map((player, index) => (
-              <li key={index} className="player-item">
-                <label className="player-label">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedPlayers.some(p => p.name === player.name)}
-                    onChange={() => togglePlayerSelection(player)}
-                    className="player-checkbox"
-                  />
-                  <span className="player-name">{player.name} - {player.position}</span>
-                </label>
-              </li>
-            ))}
-          </ul>
+        <div className="player-grid">
+          {sortedPlayers.map((player, index) => (
+            <div key={index} className="player-item">
+              <label className="player-label">
+                <input 
+                  type="checkbox" 
+                  checked={selectedPlayers.some(p => p.name === player.name)}
+                  onChange={() => togglePlayerSelection(player)}
+                  className="player-checkbox"
+                />
+                <span className="player-name">{player.name} - {player.position}</span>
+              </label>
+            </div>
+          ))}
         </div>
         <h3>Add +1s for the week</h3>
         <div className="temporary-player-form">
@@ -188,8 +181,19 @@ export function WeeklySelection({
             </ul>
           </div>
         )}
-        {/* Generate Teams Button */}
-        <button onClick={handleGenerateTeams} className="generate-teams-btn">Generate Teams</button>
+        {/* Generate Teams Button and Player Count */}
+        <div className="generate-teams-section">
+          <button 
+            onClick={handleGenerateTeams} 
+            className="generate-teams-btn"
+            disabled={totalSelectedPlayers < 2}
+          >
+            Generate Teams
+          </button>
+          <div className="player-count">
+            Selected Players: {totalSelectedPlayers}
+          </div>
+        </div>
       </div>
 
       {/* Section 2: Generated Teams */}

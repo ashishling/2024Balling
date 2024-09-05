@@ -11,10 +11,11 @@
 // The JSDoc comment above is just for documentation purposes.
 
 export class Player {
-  constructor(name, position, skillLevel) {
+  constructor(name, position, skillLevel, id = null) {
     this.name = name;
     this.setPosition(position);
     this.setSkillLevel(skillLevel);
+    this.id = id;
     this.wins = 0;
     this.losses = 0;
   }
@@ -47,6 +48,7 @@ export class Player {
 
   toJSON() {
     return {
+      id: this.id,
       name: this.name,
       position: this.position,
       skillLevel: this.skillLevel,

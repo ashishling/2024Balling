@@ -1,0 +1,46 @@
+.tab-navigation {
+    display: flex;
+    justify-content: center;
+    background-color: #f0f0f0;
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tab-navigation a, .tab-navigation button {
+    text-decoration: none;
+    color: #333;
+    padding: 10px 20px;
+    margin: 0 5px;
+    border-radius: 5px 5px 0 0;
+    transition: all 0.3s ease;
+    background-color: #e0e0e0;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  .tab-navigation a:hover, .tab-navigation button:hover {
+    background-color: #d0d0d0;
+  }
+  
+  .tab-navigation a.active, .tab-navigation button.active {
+    background-color: #4CAF50;
+    color: white;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tab-navigation a:not(.active), .tab-navigation button:not(.active) {
+    box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    .tab-navigation {
+      flex-wrap: wrap;
+    }
+  
+    .tab-navigation a, .tab-navigation button {
+      flex: 1 0 40%;
+      margin: 5px;
+    }
+  }

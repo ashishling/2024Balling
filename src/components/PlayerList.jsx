@@ -1,74 +1,75 @@
 import React, { useState } from 'react';
+import './PlayerList.css';
 
-export function PlayerList({ players, onRemovePlayer, onEditPlayer }) {
-  const [editingPlayer, setEditingPlayer] = useState(null);
-  const [editedPosition, setEditedPosition] = useState('');
-  const [editedSkillLevel, setEditedSkillLevel] = useState('');
+export function PlayerList({ players = [], onRemovePlayer, onEditPlayer }) {
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', position: '', skillLevel: '' });
 
-  if (!players || players.length === 0) {
-    return <p>No players available.</p>;
-  }
-
-  const handleEditClick = (player) => {
-    setEditingPlayer(player);
-    setEditedPosition(player.position);
-    setEditedSkillLevel(player.skillLevel);
+  const handleEdit = (player) => {
+    setEditingId(player.id);
+    setEditForm({ name: player.name, position: player.position, skillLevel: player.skillLevel });
   };
 
-  const handleSaveEdit = () => {
-    onEditPlayer(editingPlayer.name, editedPosition, Number(editedSkillLevel));
-    setEditingPlayer(null);
+  const handleSave = (id) => {
+    onEditPlayer(id, editForm);
+    setEditingId(null);
   };
 
-  const handleCancelEdit = () => {
-    setEditingPlayer(null);
+  const handleChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
 
-  const columns = [[], [], []];
-  players.forEach((player, index) => {
-    columns[index % 3].push(player);
-  });
+  const handleDelete = (id, name) => {
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      onRemovePlayer(id);
+    }
+  };
 
   return (
-    <div className="player-list-columns">
-      {columns.map((column, columnIndex) => (
-        <ul key={columnIndex} className="player-column">
-          {column.map((player) => (
-            <li key={player.name}>
-              {editingPlayer === player ? (
-                <div className="edit-player">
-                  <span>{player.name}</span>
-                  <select
-                    value={editedPosition}
-                    onChange={(e) => setEditedPosition(e.target.value)}
-                  >
-                    <option value="Guard">Guard</option>
-                    <option value="Forward">Forward</option>
-                    <option value="Center">Center</option>
-                  </select>
-                  <input
-                    type="number"
-                    value={editedSkillLevel}
-                    onChange={(e) => setEditedSkillLevel(e.target.value)}
-                    min="1"
-                    max="10"
-                  />
-                  <button onClick={handleSaveEdit}>Save</button>
-                  <button onClick={handleCancelEdit}>Cancel</button>
-                </div>
-              ) : (
-                <div className="player-info">
-                  <span>{player.name} - {player.position} (Skill: {player.skillLevel})</span>
-                  <div className="player-actions">
-                    <button onClick={() => handleEditClick(player)}>Edit</button>
-                    <button onClick={() => onRemovePlayer(player.name)}>Remove</button>
-                  </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      ))}
+    <div className="player-list">
+      <h2>Player List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Skill Level</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {players && players.length > 0 ? (
+            players.map((player) => (
+              <tr key={player.id}>
+                {editingId === player.id ? (
+                  <>
+                    <td><input name="name" value={editForm.name} onChange={handleChange} /></td>
+                    <td><input name="position" value={editForm.position} onChange={handleChange} /></td>
+                    <td><input name="skillLevel" type="number" value={editForm.skillLevel} onChange={handleChange} /></td>
+                    <td>
+                      <button className="save-button" onClick={() => handleSave(player.id)}>Save</button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td>{player.name}</td>
+                    <td>{player.position}</td>
+                    <td>Skill: {player.skillLevel}</td>
+                    <td>
+                      <button className="edit-button" onClick={() => handleEdit(player)}>Edit</button>
+                      <button className="delete-button" onClick={() => handleDelete(player.id, player.name)}>Delete</button>
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4">No players available</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

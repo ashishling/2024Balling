@@ -1,88 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './GameCard.css';
 
-export function GameCard({ game, onUpdateScore, onDeleteGame, isUpcoming }) {
-  console.log('onDeleteGame in GameCard:', onDeleteGame); // Keep this line for debugging
-
+export function GameCard({ game, onUpdateScore, onDeleteGame, isUpcoming, getPlayerName }) {
+  const [localTeam1Score, setLocalTeam1Score] = useState(game.teams[0]?.score || 0);
+  const [localTeam2Score, setLocalTeam2Score] = useState(game.teams[1]?.score || 0);
   const [isEditing, setIsEditing] = useState(false);
-  const [team1Score, setTeam1Score] = useState(game.team1Score || 0);
-  const [team2Score, setTeam2Score] = useState(game.team2Score || 0);
 
-  const handleScoreSubmit = () => {
-    onUpdateScore(game.id, team1Score, team2Score);
+  useEffect(() => {
+    setLocalTeam1Score(game.teams[0]?.score || 0);
+    setLocalTeam2Score(game.teams[1]?.score || 0);
+  }, [game]);
+
+  const handleScoreUpdate = () => {
+    onUpdateScore(game.id, parseInt(localTeam1Score), parseInt(localTeam2Score));
     setIsEditing(false);
   };
 
   const handleDeleteGame = () => {
-    if (typeof onDeleteGame !== 'function') {
-      console.error('onDeleteGame is not a function in GameCard');
-      return;
-    }
-    if (window.confirm('Are you sure you want to delete this game?')) {
+    const confirmDelete = window.confirm("Are you sure you want to delete this game? This action cannot be undone.");
+    if (confirmDelete) {
       onDeleteGame(game.id);
     }
   };
 
-  const renderPlayers = (team) => {
-    if (team && team.players && Array.isArray(team.players)) {
-      return team.players.map((player, index) => (
-        <li key={index}>{player.name} - {player.position}</li>
-      ));
+  const renderTeam = (teamIndex) => {
+    const team = game.teams[teamIndex];
+    if (!team) {
+      console.error(`Team ${teamIndex} is undefined for game:`, game);
+      return null;
     }
-    return <li>No players available</li>;
+
+    return (
+      <div className="team-column">
+        <h3>{team.name}</h3>
+        <ul>
+          {Array.isArray(team.players) ? (
+            team.players.map((playerId, index) => (
+              <li key={index}>{getPlayerName(playerId)}</li>
+            ))
+          ) : (
+            <li>No players available</li>
+          )}
+        </ul>
+        <div className="score-display">Score: {team.score}</div>
+      </div>
+    );
   };
 
-  const team1Players = renderPlayers(game.teams[0]);
-  const team2Players = renderPlayers(game.teams[1]);
+  if (!game || !Array.isArray(game.teams) || game.teams.length < 2) {
+    console.error('Invalid game data:', game);
+    return <div className="game-card">Invalid game data</div>;
+  }
 
   return (
-    <div className={`game-card ${isUpcoming ? 'upcoming' : 'past'}`}>
-      <p className="game-date">Game Date: {new Date(game.date).toLocaleDateString()}</p>
+    <div className="game-card">
+      <div className="game-date">{new Date(game.date).toLocaleDateString()}</div>
+      <div className="game-id" style={{ fontSize: '0.8em', color: '#666', marginBottom: '5px' }}>
+        Game ID: {game.id}
+      </div>
+      <div className="game-status" style={{ fontSize: '0.9em', color: '#444', marginBottom: '5px' }}>
+        Status: {game.status}
+      </div>
       <div className="teams-container">
-        <div className="team-column">
-          <h3>Team 1</h3>
-          <ul>{team1Players}</ul>
-          <div className="score-display">
-            <p>Score: {team1Score}</p>
-          </div>
-        </div>
-        <div className="team-column">
-          <h3>Team 2</h3>
-          <ul>{team2Players}</ul>
-          <div className="score-display">
-            <p>Score: {team2Score}</p>
-          </div>
-        </div>
+        {renderTeam(0)}
+        {renderTeam(1)}
       </div>
       <div className="action-buttons">
-        {isEditing ? (
-          <>
-            <input
-              type="number"
-              value={team1Score}
-              onChange={(e) => setTeam1Score(Number(e.target.value))}
-              min="0"
-              placeholder="Team 1 Score"
-            />
-            <input
-              type="number"
-              value={team2Score}
-              onChange={(e) => setTeam2Score(Number(e.target.value))}
-              min="0"
-              placeholder="Team 2 Score"
-            />
-            <button onClick={handleScoreSubmit}>Save Scores</button>
-          </>
+        {game.status === 'completed' && !isEditing ? (
+          <button onClick={() => setIsEditing(true)}>Edit Score</button>
         ) : (
           <>
-            <button onClick={() => setIsEditing(true)}>
-              {isUpcoming ? 'Record Scores' : 'Edit Scores'}
-            </button>
-            <button onClick={handleDeleteGame} className="delete-button">
-              Delete Game
+            <input
+              type="number"
+              value={localTeam1Score}
+              onChange={(e) => setLocalTeam1Score(e.target.value)}
+            />
+            <input
+              type="number"
+              value={localTeam2Score}
+              onChange={(e) => setLocalTeam2Score(e.target.value)}
+            />
+            <button onClick={handleScoreUpdate}>
+              {isUpcoming ? "Update Score" : "Save Score"}
             </button>
           </>
         )}
+        <button className="delete-button" onClick={handleDeleteGame}>Delete Game</button>
       </div>
     </div>
   );

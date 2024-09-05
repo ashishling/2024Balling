@@ -30,7 +30,7 @@
 .selection-actions {
   display: flex;
   justify-content: space-between; /* Space out the buttons */
-  margin-bottom: 1.5rem; /* Add more space below the buttons */
+  margin-bottom: 1rem; /* Add more space below the buttons */
 }
 
 .selection-actions button {
@@ -75,10 +75,11 @@
   align-items: center;
   font-size: 1rem; /* Consistent font size */
   color: var(--text-dark); /* Dark text color */
+  cursor: pointer;
 }
 
 .player-checkbox {
-  margin-right: 10px; /* Space between checkbox and text */
+  margin-right: 0.5rem; /* Space between checkbox and text */
 }
 
 .temporary-player-form {
@@ -238,4 +239,90 @@
 .swap-button:hover {
   background-color: #e0e0e0; /* Slightly darker on hover */
   transform: scale(1.05); /* Slight enlargement on hover */
+}
+
+.player-selection {
+  margin-bottom: 2rem;
+}
+
+.selection-actions {
+  margin-bottom: 1rem;
+}
+
+.player-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: flex-start;
+}
+
+.player-item {
+  flex: 0 1 calc(25% - 1rem); /* This creates 4 columns by default */
+  min-width: 200px; /* Ensures readability on smaller screens */
+}
+
+.player-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.player-checkbox {
+  margin-right: 0.5rem;
+}
+
+.player-name {
+  font-size: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .player-item {
+    flex: 0 1 calc(33.333% - 1rem); /* 3 columns on medium screens */
+  }
+}
+
+@media (max-width: 900px) {
+  .player-item {
+    flex: 0 1 calc(50% - 1rem); /* 2 columns on smaller screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .player-item {
+    flex: 0 1 100%; /* 1 column on very small screens */
+  }
+}
+
+.generate-teams-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.generate-teams-btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.generate-teams-btn:hover {
+  background-color: #45a049;
+}
+
+.generate-teams-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.player-count {
+  font-size: 0.9rem;
+  color: #666; /* Slightly gray font color */
+  margin-left: 1rem; /* Space between button and player count */
 }

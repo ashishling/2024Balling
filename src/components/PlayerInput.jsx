@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './PlayerInput.css'; // Make sure to create this CSS file
+import './PlayerInput.css';
 
 export function PlayerInput({ onAddPlayer }) {
   const [name, setName] = useState('');

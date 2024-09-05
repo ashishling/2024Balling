@@ -1,28 +1,17 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import './TabNavigation.css';
 
 export function TabNavigation({ activeTab, setActiveTab }) {
   const navigate = useNavigate();
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    switch (tab) {
-      case 'overall':
-        navigate('/overall');
-        break;
-      case 'weekly':
-        navigate('/weekly');
-        break;
-      case 'games':
-        navigate('/games');
-        break;
-      default:
-        navigate('/');
-    }
+    navigate(`/${tab}`);
   };
 
   return (
-    <nav className="App-nav">
+    <nav className="tab-navigation">
       <button 
         className={`tab ${activeTab === 'overall' ? 'active' : ''}`}
         onClick={() => handleTabClick('overall')}
@@ -33,14 +22,27 @@ export function TabNavigation({ activeTab, setActiveTab }) {
         className={`tab ${activeTab === 'weekly' ? 'active' : ''}`}
         onClick={() => handleTabClick('weekly')}
       >
-        Weekly Selection
+        Game Creation
       </button>
       <button 
         className={`tab ${activeTab === 'games' ? 'active' : ''}`}
         onClick={() => handleTabClick('games')}
       >
-        Game Management
+        Game Scores
       </button>
+      <button 
+        className={`tab ${activeTab === 'player-stats' ? 'active' : ''}`}
+        onClick={() => handleTabClick('player-stats')}
+      >
+        Player Stats
+      </button>
+      <Link
+        to="/admin"
+        className={activeTab === 'admin' ? 'active' : ''}
+        onClick={() => setActiveTab('admin')}
+      >
+        Admin
+      </Link>
     </nav>
   );
 }
