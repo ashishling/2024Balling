@@ -1,24 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Player } from '../models/Player';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import './WeeklySelection.css';
 
 export function WeeklySelection({ 
   allPlayers, 
   onUpdateWeeklyPlayers, 
-  onGenerateTeams, 
+  onGenerateTeams,  // Make sure this prop is named correctly
   onReset, 
   onCreateGame, 
   currentGame, 
   recordScores, 
-  teams,
-  setTeams // Add this prop
+  teams = [], // Provide a default empty array
+  setTeams 
 }) {
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [temporaryPlayers, setTemporaryPlayers] = useState([]);
   const [newTempPlayer, setNewTempPlayer] = useState({ name: '', position: 'Guard', skillLevel: 1 });
   const [gameDate, setGameDate] = useState('');
   const navigate = useNavigate();
+  const [isAddingPlayer, setIsAddingPlayer] = useState(false);
 
   useEffect(() => {
     // Reset selected players and temporary players when allPlayers changes
@@ -52,7 +55,7 @@ export function WeeklySelection({
       return;
     }
     onUpdateWeeklyPlayers([...selectedPlayers, ...temporaryPlayers]);
-    onGenerateTeams();
+    onGenerateTeams([...selectedPlayers, ...temporaryPlayers]);  // Pass the selected players to onGenerateTeams
   };
 
   const handleSelectAll = () => {
@@ -67,15 +70,45 @@ export function WeeklySelection({
     onReset();
   };
 
-  const handleAddTempPlayer = (e) => {
+  const handleAddTempPlayer = async (e) => {
     e.preventDefault();
     if (temporaryPlayers.length >= 2) {
       alert("Maximum of 2 temporary players allowed.");
       return;
     }
-    const tempPlayer = new Player(newTempPlayer.name, newTempPlayer.position, parseInt(newTempPlayer.skillLevel));
-    setTemporaryPlayers([...temporaryPlayers, tempPlayer]);
-    setNewTempPlayer({ name: '', position: 'Guard', skillLevel: 1 });
+
+    setIsAddingPlayer(true);
+
+    try {
+      // Add the new player to Firestore
+      const docRef = await addDoc(collection(db, 'players'), {
+        name: newTempPlayer.name,
+        position: newTempPlayer.position,
+        skillLevel: parseInt(newTempPlayer.skillLevel)
+      });
+
+      // Create a new Player object with the Firestore ID
+      const tempPlayer = new Player(
+        newTempPlayer.name, 
+        newTempPlayer.position, 
+        parseInt(newTempPlayer.skillLevel),
+        docRef.id
+      );
+
+      // Update local state
+      setTemporaryPlayers(prevPlayers => [...prevPlayers, tempPlayer]);
+      setNewTempPlayer({ name: '', position: 'Guard', skillLevel: 1 });
+
+      // Optionally, you can update the allPlayers state here or in the parent component
+      // For example:
+      // onUpdateWeeklyPlayers([...allPlayers, tempPlayer]);
+
+    } catch (error) {
+      console.error("Error adding temporary player: ", error);
+      alert("Failed to add temporary player. Please try again.");
+    } finally {
+      setIsAddingPlayer(false);
+    }
   };
 
   const handleTempPlayerInputChange = (e) => {
@@ -101,6 +134,7 @@ export function WeeklySelection({
   const rightColumnPlayers = allPlayers.slice(midpoint);
 
   const swapPlayer = (playerIndex, fromTeam) => {
+    if (!teams || teams.length < 2) return; // Add this check
     const updatedTeams = [...teams];
     const player = updatedTeams[fromTeam].players.splice(playerIndex, 1)[0];
     updatedTeams[fromTeam === 0 ? 1 : 0].players.push(player);
@@ -168,7 +202,9 @@ export function WeeklySelection({
               max="10"
               required
             />
-            <button type="submit">Add</button>
+            <button type="submit" disabled={isAddingPlayer}>
+              {isAddingPlayer ? 'Adding...' : 'Add'}
+            </button>
           </form>
         </div>
         {temporaryPlayers.length > 0 && (
@@ -197,7 +233,7 @@ export function WeeklySelection({
       </div>
 
       {/* Section 2: Generated Teams */}
-      {teams.length > 0 && (
+      {teams && teams.length > 0 && (
         <div className="generated-teams">
           <h2>Generated Teams</h2>
           <div className="teams-list">
@@ -224,7 +260,7 @@ export function WeeklySelection({
       )}
 
       {/* Section 3: Create Game */}
-      {teams.length > 0 && !currentGame && (
+      {teams && teams.length > 0 && !currentGame && (
         <div className="game-creation">
           <h2>Confirm Players and Create Game</h2>
           <form onSubmit={handleCreateGame}>

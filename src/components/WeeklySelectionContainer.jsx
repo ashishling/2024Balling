@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 export function WeeklySelectionContainer({ 
   allPlayers, 
-  updateWeeklyPlayers, 
-  createTeams, 
+  onUpdateWeeklyPlayers,  // Changed from updateWeeklyPlayers
+  onGenerateTeams, 
   handleReset, 
   teams,
   setTeams
@@ -42,8 +42,8 @@ export function WeeklySelectionContainer({
   return (
     <WeeklySelection
       allPlayers={allPlayers}
-      onUpdateWeeklyPlayers={updateWeeklyPlayers}
-      onGenerateTeams={createTeams}
+      onUpdateWeeklyPlayers={onUpdateWeeklyPlayers}  // This now matches
+      onGenerateTeams={onGenerateTeams}
       onReset={handleReset}
       onCreateGame={createGame}
       teams={teams}

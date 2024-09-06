@@ -57,7 +57,8 @@
     margin-top: 20px;
   }
   
-  .action-buttons button {
+  .action-buttons button,
+  .action-buttons .button {
     background-color: #28a745;
     color: white;
     border: none;
@@ -65,9 +66,12 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    text-decoration: none;
+    font-size: 1em;
   }
   
-  .action-buttons button:hover {
+  .action-buttons button:hover,
+  .action-buttons .button:hover {
     background-color: #218838;
   }
   
@@ -84,6 +88,14 @@
   
   .delete-button:hover {
     background-color: #c82333;
+  }
+  
+  .live-scoring-button {
+    background-color: #007bff;
+  }
+  
+  .live-scoring-button:hover {
+    background-color: #0056b3;
   }
   
   input[type="number"] {

@@ -1,0 +1,92 @@
+.live-scoring {
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.teams-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.team-scoring {
+  flex: 1;
+  padding: 15px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  margin: 0 10px;
+  text-align: center;
+}
+
+.team-scoring h3 {
+  color: #007bff;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.team-score {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.scoring-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.scoring-buttons button {
+  margin: 5px;
+  padding: 10px 15px;
+  font-size: 1.1em;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.scoring-buttons button:hover {
+  background-color: #218838;
+}
+
+.player-list {
+  margin: 10px 0;
+}
+
+.player-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  padding: 5px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.player-name {
+  font-weight: bold;
+}
+
+.player-score {
+  margin-left: 10px;
+}
+
+/* Add some responsive design for smaller screens */
+@media (max-width: 768px) {
+  .teams-container {
+    flex-direction: column;
+  }
+
+  .team-scoring {
+    margin-bottom: 20px;
+  }
+
+  .team-score {
+    font-size: 2.5em;
+  }
+}

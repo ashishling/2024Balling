@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GameCard } from './GameCard';
 import { doc, updateDoc, deleteDoc, collection, getDocs, runTransaction } from 'firebase/firestore';
 import { db } from '../firebase';
 import './GameManagement.css';
 
-export function GameManagement({ upcomingGames, pastGames, onGameUpdated, onGameDeleted }) {
+export function GameManagement({ upcomingGames, pastGames, onGameUpdated, onGameDeleted, getPlayerName }) {
   const [games, setGames] = useState({ upcoming: [], completed: [] });
   const [players, setPlayers] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -41,10 +43,6 @@ export function GameManagement({ upcomingGames, pastGames, onGameUpdated, onGame
       completed: sortedCompleted 
     });
   }, [upcomingGames, pastGames]);
-
-  const getPlayerName = (playerId) => {
-    return players[playerId] || 'Unknown Player';
-  };
 
   const handleUpdateScore = async (gameId, team1Score, team2Score) => {
     try {
@@ -153,6 +151,7 @@ export function GameManagement({ upcomingGames, pastGames, onGameUpdated, onGame
             onDeleteGame={handleDeleteGame}
             isUpcoming={true}
             getPlayerName={getPlayerName}
+            navigate={navigate}
           />
         ))}
       </div>
@@ -167,6 +166,7 @@ export function GameManagement({ upcomingGames, pastGames, onGameUpdated, onGame
             onDeleteGame={handleDeleteGame}
             isUpcoming={false}
             getPlayerName={getPlayerName}
+            navigate={navigate}
           />
         ))}
       </div>
