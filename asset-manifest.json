@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/2024Balling/static/css/main.07013b97.css",
-    "main.js": "/2024Balling/static/js/main.5d1307e0.js",
+    "main.css": "/2024Balling/static/css/main.c861549e.css",
+    "main.js": "/2024Balling/static/js/main.fda11ab7.js",
     "index.html": "/2024Balling/index.html",
-    "main.07013b97.css.map": "/2024Balling/static/css/main.07013b97.css.map",
-    "main.5d1307e0.js.map": "/2024Balling/static/js/main.5d1307e0.js.map"
+    "main.c861549e.css.map": "/2024Balling/static/css/main.c861549e.css.map",
+    "main.fda11ab7.js.map": "/2024Balling/static/js/main.fda11ab7.js.map"
   },
   "entrypoints": [
-    "static/css/main.07013b97.css",
-    "static/js/main.5d1307e0.js"
+    "static/css/main.c861549e.css",
+    "static/js/main.fda11ab7.js"
   ]
 }
